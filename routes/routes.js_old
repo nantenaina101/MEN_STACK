@@ -1,0 +1,129 @@
+const express = require("express")
+const User = require("../models/users")
+const router = express.Router()
+require("../models/users")
+
+/*router.get("/users", (req, res) => {
+    res.send("All users")
+})*/
+
+/* GET ALL USERS */
+router.get("/users", async (req, res, next) => {
+    const users = await User.find({});
+
+    try {
+        res.send(users);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+/* GET SINGLE USER BY ID */
+router.get('/user/:id', function (req, res, next) {
+    const id = req.params.id;
+    User.findById(id)
+        .then(data => {
+            if (!data)
+                res.status(404).send({ message: "Not found user with id " + id });
+            else res.send(data);
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .send({ message: "Error retrieving user with id=" + id });
+        });
+
+});
+
+/* SAVE USER */
+router.post("/add-user", async (req, res, next) => {
+    const user = new User(req.body);
+
+    try {
+        await user.save();
+        res.send(user);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+// UPDATE USER
+router.put('/user/:id', function (req, res, next) {
+    if (!req.body) {
+        return res.status(400).send({
+            message: "User to update can not be empty!"
+        });
+    }
+
+    const id = req.params.id;
+
+    User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+        .then(user => {
+            if (!user) {
+                res.status(404).send({
+                    message: `Cannot update user with id=${id}. Maybe user was not found!`
+                });
+            } else {
+                res.send({
+                    message: "User was updated successfully."
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Error updating user with id=" + id
+            });
+        });
+});
+
+/* DELETE USER */
+router.delete('/user/:id', function (req, res, next) {
+    const id = req.params.id;
+    User.findByIdAndRemove(id)
+        .then(user => {
+            if (!user) {
+                res.status(404).send({
+                    message: `Cannot delete user with id=${id}. Maybe user was not found!`
+                });
+            } else {
+                res.send({
+                    message: "User was deleted successfully!"
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Could not delete user with id=" + id
+            });
+        });
+});
+
+router.delete('/users', function (req, res, next) {
+    User.deleteMany({ email: "test@gmail.com" })
+        .then(data => {
+            res.send({
+                message: `${data.deletedCount} users were deleted successfully!`
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while removing all users."
+            });
+        });
+});
+
+router.get('/users-with-name', function (req, res, next) {
+    User.find({ name: "Nantenaina" })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving users."
+            });
+        });
+});
+
+module.exports = router;

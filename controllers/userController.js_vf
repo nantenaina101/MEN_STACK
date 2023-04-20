@@ -1,0 +1,93 @@
+const User = require("../models/users");
+
+/* GET ALL USERS */
+const getAllUsers = async (req, res, next) => {
+    try {
+        const result = await User.find().exec();
+        res.send(result);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+
+/* GET ONE USER */
+const getOneUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id).exec();
+        res.send(user);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+
+/* SAVE USER */
+const saveUser = async (req, res, next) => {
+    const user = new User(req.body);
+
+    try {
+        const result = await user.save();
+        res.send(result);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+
+/* UPDATE USER */
+const updateUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id).exec();
+        if (!user) {
+            res.status(404).send({
+                message: `Cannot update user with id=${id}. Maybe user was not found!`
+            });
+        } else {
+            user.set(req.body);
+            const result = await user.save();
+            res.send(result);
+        }
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+
+/* DELETE USER */
+const deleteUser = async (req, res) => {
+    try {
+        const result = await User.deleteOne({ _id: req.params.id }).exec();
+        res.send(result);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+
+/* DELETE MULTIPLE USERS */
+const deleteAllUsers = (req, res, next) => {
+    User.deleteMany({})
+        .then(data => {
+            res.send({
+                message: `${data.deletedCount} users were deleted successfully!`
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while removing all users."
+            });
+        });
+}
+
+/* FIND MULTIPLE USERS BY CONDITIONS */
+const findSomeUsersByConditions = (req, res, next) => {
+    User.find({ name: "Nantenaina" })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving users."
+            });
+        });
+}
+
+module.exports = {getAllUsers, getOneUser, saveUser, updateUser, deleteUser, deleteAllUsers, findSomeUsersByConditions}

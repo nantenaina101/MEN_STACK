@@ -1,0 +1,42 @@
+<%- include('includes/header'); -%>
+<% if (message) { %>
+    <div class="alert alert-dismissible fade show alert-<%= message.type %>" role="alert">
+        <button class="btn-close" type="button" data-bs-dismiss="alert"
+        aria-label="Close"></button>
+        <strong><%= message.message %></strong>
+    </div>
+<% } %>
+<h3 class="text-primary mt-3">Liste des utilisateurs</h3>
+<% if (users != '') { %>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% users.forEach((user, index) => { %>
+        <tr class="align-middle">
+            <td><%= index + 1 %></td>
+            <td><%= user.name %></td>
+            <td> <%= user.email %></td>
+            <td><%= user.phone %></td>
+            <td><% if (user.image) { %><img src="<%= user.image %>" alt="<%= user.name %>" title="<%= user.name %>" 
+                width="50" class="img-thumbnail"><% } %></td>
+            <td style="text-align: center;">
+                <a href="/edit-user/<%= user._id %>"><i class="bi bi-pencil-square"></i></a>
+                <a href="/delete-user/<%= user._id %>"><i class="bi bi-trash" style="color:red"></i></a>
+            </td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+<% } else { %>
+    <h5 class="text-secondary">Aucun utilisateur pour le moment</h5>
+<% } %>
+<%- include('includes/footer'); -%>           
